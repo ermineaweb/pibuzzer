@@ -1,5 +1,5 @@
 use rppal::gpio::OutputPin;
-use std::{ thread::sleep, time::Duration};
+use std::{thread::sleep, time::Duration};
 
 pub mod melodies;
 
@@ -37,7 +37,7 @@ impl Buzzer {
     }
 
     pub fn play_note(&mut self, note: &Note, duration: f32) {
-        let delay_between_notes_ms = 20;
+        let delay_between_notes_percent = 2.0;
 
         println!("{} {:.2}", note.to_str(), duration);
 
@@ -55,7 +55,7 @@ impl Buzzer {
         }
 
         sleep(Duration::from_millis(
-            (duration * 1000.0) as u64 - delay_between_notes_ms,
+            (duration * 1000.0 * (1.0 + delay_between_notes_percent / 100.0)) as u64,
         ));
 
         if self.light {
@@ -66,7 +66,9 @@ impl Buzzer {
             self.pin_buzzer.set_pwm_frequency(50.0, 0.0).expect("error");
         }
 
-        sleep(Duration::from_millis(delay_between_notes_ms));
+        sleep(Duration::from_millis(
+            (duration * 1000.0 * (delay_between_notes_percent / 100.0)) as u64,
+        ));
     }
 
     pub fn play_metronome(&mut self, tempo: u16, count: u16) {
